@@ -1,12 +1,11 @@
 ---
 title: "Exploring mental health incidents in New Zealand Police Data"
-author: "Christian Llave (85662382)"
+author: "Christian Llave"
 date: "2023-05-19"
 output: html_document
 ---
 
 ```{r include = FALSE}
-#setwd('C:Users/CL/Desktop/DATA401/Assignment 1')
 library(tidyverse)
 library(ggplot2)
 library(lubridate)
@@ -26,11 +25,11 @@ While police call-outs alone provide an incomplete picture of the situation of m
 2. Is there a way to see overt expressions of mental health distress manifested in police records? If so, what are the top categories?
 3. Is there a difference in how mental health incidents occur between city and non-city areas?
 
-To understand reports in the context of mental health. We will first explore the trend of mental health reports over time split by whether or not it was correctly reported as a mental health issue. Explore correlation between crime types and occurrence of mental health reports.
+To understand reports in the context of mental health. We will first explore the trend of mental health reports over time split by whether or not it was correctly reported as a mental health issue. Explore the correlation between crime types and the occurrence of mental health reports.
 
 ## II. Methods
 <!--Discuss the dataset-->
-From the Demand and Activity reports, we have access to records with key variables such as location, day of week, time of day, reported occurrence, and recorded occurrence. (New Zealand Police, 2023) However, the report contains limited demographic data, which limits the insights that can be derived from this paper. Another limitation of the report is the lack of context as to what 'Mental Health' means as an occurrence subgroup; however, for the purpose of this report, it is interpreted as overt expressions of mental health distress or occurrences that could be traced back to it.  There is also the lack of what action the police has taken to resolve the incident.
+From the Demand and Activity reports, we have access to records with key variables such as location, day of week, time of day, reported occurrence, and recorded occurrence. (New Zealand Police, 2023) However, the report contains limited demographic data, which limits the insights that can be derived from this paper. Another limitation of the report is the lack of context as to what 'Mental Health' means as an occurrence subgroup; however, for the purpose of this report, it is interpreted as overt expressions of mental health distress or occurrences that could be traced back to it.  There is also a lack of what action the police have taken to resolve the incident.
 
 The primary dataset includes incidents involving the occurrence subgroup 'Mental Health'. This means the data sets to download are from both Reported and Recorded occurrence sets. Much of the data is categorical, with the number of occurrences being the only numerical variable. This means much of the representations in this report will be represented by proportions and frequencies per category, as we drill down on dimensions relevant to the questions.
 
@@ -39,7 +38,7 @@ mh_recorded <- read.csv('MH_052020-042023_recorded.csv')
 mh_reported <- read.csv('MH_052020-042023_reported.csv')
 ```
 
-Because there are occurrences recorded as 'Mental Health' that was reported as something else and vice versa, we create a dataframe for each category. ```misreported``` is created for reports misreported as 'Mental Health' and later on recorded as a different category. ```redirected``` is for reports under other subgroups that are redirected as 'Mental Health'. Meanwhile, ```true_mh``` is for reports reported as 'Mental Health' and also recorded as 'Mental Health'. These are then combined into a master dataframe ```mh_incidents``` which will be used to subset in succeeding analyses.
+Because there are occurrences recorded as 'Mental Health' that were reported as something else and vice versa, we create a dataframe for each category. ```misreported``` is created for reports misreported as 'Mental Health' and later on recorded as a different category. ```redirected``` is for reports under other subgroups that are redirected as 'Mental Health'. Meanwhile, ```true_mh``` is for reports reported as 'Mental Health' and also recorded as 'Mental Health'. These are then combined into a master dataframe ```mh_incidents``` which will be used to subset in succeeding analyses.
 
 ```{r include = FALSE}
 misreported <- subset(mh_reported,
@@ -64,7 +63,7 @@ mh_incidents$iscity <- if_else(str_detect(mh_incidents$Police.Area.TA,"City") |
                                  str_detect(mh_incidents$Police.Area.TA,"Auckland"),"City","Other")
 ```
 
-To examine the increase of mental health reports over time, we will examine the situation for each month. We will use proportions of mental health incidents by getting the total mental health incidents for that month out of all police reports for that period. That monthly proportion is then plotted against the total reports per month. This presents the changes in proportion over time more clearly than a stacked bar chart, as the share of mental health incidents will be too small to see. 
+To examine the increase in mental health reports over time, we will examine the situation for each month. We will use the proportions of mental health incidents by getting the total mental health incidents for that month out of all police reports for that period. That monthly proportion is then plotted against the total reports per month. This presents the changes in proportion over time more clearly than a stacked bar chart, as the share of mental health incidents will be too small to see. 
 
 The source provides a csv of the count of all incident types aggregated per month. Downloading this file as opposed to the entire dataset allows for more lean operations. To match this dataset on the side of 'Mental Health' incidents, we create a table from the month of year column and store it as a dataframe. These two are then joined by date, and a new variable ```rate_mentalhealth``` is calculated as the proportion.
 
@@ -118,7 +117,7 @@ merged_monthly %>%
 
 
 
-The box plot in Figure 2 also displays this trend. Both 2020 and 2021 are both right skewed, which has a higher concentration of low-valued proportions for that year. Meanwhile, 2022 to 2023 are left skewed and close to the center respectively.
+The box plot in Figure 2 also displays this trend. Both 2020 and 2021 are both right-skewed, which has a higher concentration of low-valued proportions for that year. Meanwhile, 2022 to 2023 are left skewed and close to the center respectively.
 
 ```{r fig.height = 3, fig.width = 10, fig.align = 'center', fig.cap="Fig. 2: Box plot of monthly proportions of mental health reports grouped by year", echo = FALSE}
 merged_monthly %>%
@@ -138,7 +137,7 @@ merged_monthly %>%
 There is an increase in the proportion of mental health incidents in police records as evident in the proportion over time, and the changes in skew over time. This may substantiate the initial expectation of the police commissioner that incidents will continue to rise. 
 
 ### III. ii. Is there a way to see overt expressions of mental health distress manifested in police records? If so, what are the top categories?
-Based on Table 1, over 56% of the mental health occurrences are reported correctly. Over 37% are reported as a different occurrence subgroup and later on recorded as 'Mental Health'.  
+Based on Table 1, over 56% of mental health occurrences are reported correctly. Over 37% are reported as a different occurrence subgroup and later on, recorded as 'Mental Health'.  
 ```{r fig.width = 10, message = FALSE, echo = FALSE}
 agg_classifications <- mh_incidents %>%
   group_by(classification) %>%
@@ -218,16 +217,16 @@ plot_crime_crash <- ggplot(data = head(agg_crime_crash,n = 5),
   geom_text(aes(label = Occurrences), color = 'black', vjust = 'center', hjust = 'inward')
 ```
 
-From Figure 3, we can see that out of the social service activities and demand,over 57% involve harm or require care. Meanwhile for crime and crash demand, we can see over 73% involve suspicious behavior, and 21% involve breaches of peace. 
+From Figure 3, we can see that out of the social service activities and demand, over 57% involve harm or require care. Meanwhile, for crime and crash demand, we can see over 73% involve suspicious behavior, and 21% involve breaches of peace. 
 
 ```{r fig.height = 3,fig.width = 10, fig.align = 'center', fig.cap="Fig. 3: Bar charts of top report subgroups redirected to a Mental Health record", echo = FALSE}
 grid.arrange(plot_social_service, plot_crime_crash, ncol=2)
 ```
 
-From police records, there were occurrences of mental health distress that were most often initially reported as either a crime, crash, or social service demand. If we were to look into reducing mental health incidents in the scope of police work, it would be good to look at these types of incidents and design better social support systems may be put in place.
+From police records, there were occurrences of mental health distress that were most often initially reported as either a crime, crash, or social service demand. If we were to look into reducing mental health incidents in the scope of police work, it would be good to look at these types of incidents and design better social support systems that may be put in place.
 
 ### III. iii. Is there a difference in how mental health incidents occur between city and non-city areas?
-From Figure 4, we can see a difference in the scale of occurrences, but a similar shape of the overarching trend for the two contexts; however there are differences in the hourly trends depending on the day of the week. For example, between 11AM to 6PM on Friday, there are fluctuations between how similar the trends are between the two contexts. These fluctuations then occur earlier on Sundays. There was also a distinct peak on Tuesdays in non-city contexts that was not present in city contexts. 
+From Figure 4, we can see a difference in the scale of occurrences, but a similar shape of the overarching trend for the two contexts; however, there are differences in the hourly trends depending on the day of the week. For example, between 11 AM to 6 PM on Friday, there are fluctuations in how similar the trends are between the two contexts. These fluctuations then occur earlier on Sundays. There was also a distinct peak on Tuesdays in non-city contexts that was not present in city contexts. 
 ```{r include = FALSE}
 tod <- subset(mh_incidents,mh_incidents$Occurrence.Hour.Of.Day != 99)
 
@@ -257,7 +256,7 @@ plot_agg_tod <- agg_tod %>%
 plot_agg_tod
 ```
 
-Based on Figure 5, there are mostly similar proportions in terms of the split between true mental health incidents, redirections, and misreports between city and non-city contexts. This could mean there are similar levels of awareness in terms of requesting for help for mental distress. The big difference between the two is that the city context is more concentrated around specific areas; meanwhile, the non-city context is more spread out in lower volumes, which limits insights that could be derived from mere visual observation. For future studies, it would be good to compare these proportions for significant differences.
+Based on Figure 5, there are mostly similar proportions in terms of the split between true mental health incidents, redirections, and misreports between city and non-city contexts. This could mean there are similar levels of awareness in terms of requesting help for mental distress. The big difference between the two is that the city context is more concentrated around specific areas; meanwhile, the non-city context is more spread out in lower volumes, which limits insights that could be derived from mere visual observation. For future studies, it would be good to compare these proportions for significant differences.
 
 ```{r include = FALSE}
 by_region_city <- subset(mh_incidents, mh_incidents$iscity == 'City')
@@ -326,7 +325,7 @@ grid.arrange(plot_regions_city, plot_regions_noncity, ncol=2)
 
 ## Summary
 
-Based on our findings, there has been an increase in the proportion of mental health incidents in police records. We also saw a portion of mental health incidents that was reported as different overt manifestations of mental distress, and found that they were mostly reported as social/service demand and activity, and crime. We then noticed similarities in the proportion of misclassified reports between city and non-city contexts. On the topic of city and non-city contexts, we noticed differences in the trends over the course of the day depending on the day of the week. Despite the limitations in the available dataset, there are signs of potential further analyses that could produce more definitive insights for actions that the government could take to reduce mental health incidents, and refocus the function of the police to allow for more specialized support to those experiencing mental distress. 
+Based on our findings, there has been an increase in the proportion of mental health incidents in police records. We also saw a portion of mental health incidents that were reported as different overt manifestations of mental distress and found that they were mostly reported as social/service demand and activity, and crime. We then noticed similarities in the proportion of misclassified reports between city and non-city contexts. On the topic of city and non-city contexts, we noticed differences in the trends over the course of the day depending on the day of the week. Despite the limitations in the available dataset, there are signs of potential further analyses that could produce more definitive insights for actions that the government could take to reduce mental health incidents and refocus the function of the police to allow for more specialized support to those experiencing mental distress. 
 
 ## References
 
